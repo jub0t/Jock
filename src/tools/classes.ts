@@ -19,6 +19,8 @@ export function getAllClassChildren<T>(target_class: { prototype: T }, processed
         const ctype = GetType(value);
         const is_basic = IsBasic(ctype);
 
+        console.log(prop, proto, value, ctype);
+
         let child: Export = {
             Key: prop,
             Type: ctype,
@@ -29,9 +31,9 @@ export function getAllClassChildren<T>(target_class: { prototype: T }, processed
 
         if (child.Type === InstanceType.Class && !processed.has(value) && prop !== "constructor") {
             processed.add(value);
-            child.Children = getAllClassChildren(value, processed);
+            child.Children = getAllClassChildren({ prototype: value }, processed);
         } else if (typeof value === "function" && prop !== "constructor") {
-            child.Children = getAllClassChildren(value, processed);
+            child.Children = getAllClassChildren({ prototype: value }, processed);
         }
 
         children.push(child);
