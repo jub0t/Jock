@@ -1,7 +1,7 @@
-import GetType, { InstanceType, IsBasic } from "./types";
+import GetType, { InstanceType, IsBasic, isClass } from "./types";
 import { Export } from "../parser";
 
-export function getAllClassChildren<T>(target_class: { prototype: T }, processed = new Set<any>()): Export[] {
+export function getAllClassChildren<T extends { new(...args: any[]): any }>(target_class: T): Export[] {
     let children: Export[] = [];
     const proto: any = target_class.prototype;
 
@@ -9,17 +9,16 @@ export function getAllClassChildren<T>(target_class: { prototype: T }, processed
         return children;
     }
 
-    const properties = [
+    const properties: string[] = removeDefaults([
         ...Object.getOwnPropertyNames(proto),
         ...Object.getOwnPropertyNames(target_class)
-    ];
+    ]);
 
-    properties.forEach((prop) => {
-        const value = proto[prop];
-        const ctype = GetType(value);
-        const is_basic = IsBasic(ctype);
-
-        console.log(prop, proto, value, ctype);
+    // Process Children
+    properties.forEach((prop: string) => {
+        const value: any = proto[prop]
+        const ctype: InstanceType = GetType(value);
+        const is_basic: boolean = IsBasic(ctype);
 
         let child: Export = {
             Key: prop,
@@ -29,15 +28,14 @@ export function getAllClassChildren<T>(target_class: { prototype: T }, processed
             Children: [],
         };
 
-        if (child.Type === InstanceType.Class && !processed.has(value) && prop !== "constructor") {
-            processed.add(value);
-            child.Children = getAllClassChildren({ prototype: value }, processed);
-        } else if (typeof value === "function" && prop !== "constructor") {
-            child.Children = getAllClassChildren({ prototype: value }, processed);
-        }
-
-        children.push(child);
+        console.log(`${child.Key}, ${target_class}`)
     });
 
     return children;
+}
+
+export function removeDefaults(target_class: string[]) {
+    return target_class.filter(i => {
+        return !["length", "name", "constructor", "prototype"].includes(i)
+    })
 }
