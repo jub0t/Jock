@@ -1,4 +1,4 @@
-import getAllClassChildren, { getFunctionChildren } from "../tools/children";
+import { getAllClassChildren } from "../tools/children";
 import GetType, { InstanceType, IsBasic } from "../tools/types";
 
 export interface AnyMap {
@@ -10,13 +10,15 @@ export interface Export {
     Type: InstanceType
     Children: Export[]
     Value: undefined | any
-    IsBasic: boolean // Basic classes like Number, String, Boolean etc
+    IsBasic: boolean // Basic types like Number, String, Boolean, etc.
 }
 
 class Parser {
+    // Data
     #data: Export[] = [];
     #ir: String[] = []
 
+    // Parse object
     public parse(object: AnyMap, verbose: boolean) {
         const instances = Object.keys(object)
 
@@ -29,7 +31,7 @@ class Parser {
 
             if (itype == InstanceType.Class) {
                 const class_children = getAllClassChildren(value)
-                console.log(value, class_children)
+                children = [...children, ...class_children]
             }
 
             this.#data.push({
@@ -39,7 +41,6 @@ class Parser {
                 IsBasic: is_basic,
                 Children: children,
             } as Export)
-
             this.#ir.push(`${key}<${itype}> = ${value}`)
         }
 
