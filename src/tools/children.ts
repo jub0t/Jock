@@ -1,6 +1,3 @@
-import { Export } from "../parser";
-import GetType, { InstanceType, IsBasic, isClass } from "./types";
-
 export function getFunctionChildren(func: Function) {
     const children = [];
     const properties = Object.getOwnPropertyNames(func);

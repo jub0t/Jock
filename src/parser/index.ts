@@ -26,7 +26,7 @@ class Parser {
     #ir: String[] = []
 
     // Parse object
-    public parse(object: AnyMap, verbose: boolean) {
+    public parse(object: AnyMap, verbose: boolean = false) {
         const instances = Object.keys(object)
 
         for (let x = 0; x < instances.length; x++) {
@@ -41,8 +41,13 @@ class Parser {
             if (itype == InstanceType.Class) {
                 const class_children = getAllClassChildren(value)
                 children = [...children, ...class_children]
-            } else if (itype == InstanceType.Function) {
+            }
+            else if (itype == InstanceType.Function) {
                 function_data = getFunctionInfo(value)
+            }
+            else if (itype == InstanceType.Object) {
+                let innerObject = this.parse(value)
+                children = innerObject
             }
 
             let final: Export = {

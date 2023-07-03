@@ -1,4 +1,4 @@
-import GetType, { InstanceType, IsBasic, isClass } from "./types";
+import GetType, { InstanceType, IsBasic } from "./types";
 import { Export } from "../parser";
 
 export function removeDefaults(target_class: string[]) {

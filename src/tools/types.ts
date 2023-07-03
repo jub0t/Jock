@@ -1,13 +1,13 @@
 import Match from "./match";
 
 export enum InstanceType {
+    Float = "Float",
     String = "String",
-    Function = "Function",
-    Class = "Class",
-    Object = "Object",
     Number = "Number",
     Boolean = "Boolean",
-    Float = "Float"
+    Function = "Function",
+    Object = "Object",
+    Class = "Class",
 }
 
 export function isClass(obj: any) {
