@@ -2,7 +2,7 @@ import { Export } from "../parser";
 import { InstanceType } from "../tools/types";
 
 class Debug {
-    PrintStructure(parent: Export, depth = 0) {
+    PrintStructure<T>(parent: Export<T>, depth = 0) {
         if (parent.Children.length > 0) {
             for (const child of parent.Children) {
                 console.log(`${" ".repeat(depth * 4)}- ${parent.Key}.${child.Key}`);

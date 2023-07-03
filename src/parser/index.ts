@@ -16,19 +16,19 @@ export interface ClassData {
     Params: string[]
 }
 
-export interface Export {
+export interface Export<T> {
     Key: String
     Type: InstanceType
     IsBasic: boolean
-    Value: undefined | any
-    Children: Export[]
+    Value: undefined | T
+    Children: Export<T>[]
     ClassData?: ClassData
     FunctionData?: FunctionData
 }
 
 class Parser {
     // Data
-    #data: Export[] = [];
+    #data: Export<any>[] = [];
     #ir: String[] = []
 
     // Parse object
@@ -41,7 +41,7 @@ class Parser {
             const itype = GetType(value)
             const is_basic = IsBasic(itype)
 
-            let final: Export = {
+            let final: Export<typeof itype> = {
                 Key: key,
                 Type: itype,
                 Value: value,
@@ -62,7 +62,7 @@ class Parser {
                 final.Children = innerObject
             }
 
-            this.#data.push(final as unknown as Export)
+            this.#data.push(final as unknown as Export<typeof itype>)
         }
 
         return this.#data

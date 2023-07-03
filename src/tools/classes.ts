@@ -17,8 +17,8 @@ export function getInnerClasses<T>(parent_class: T) {
     })
 }
 
-export function getAllClassChildren<T extends { new(...args: any[]): any }>(target_class: T): Export[] {
-    let children: Export[] = [];
+export function getAllClassChildren<T extends { new(...args: any[]): any }>(target_class: T): Export<T>[] {
+    let children: Export<T>[] = [];
     const proto = target_class.prototype;
 
     if (!proto) {
@@ -33,7 +33,7 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
         const is_basic: boolean = IsBasic(ctype);
 
         if (is_basic) {
-            let child: Export = {
+            let child: Export<T> = {
                 Key: name,
                 Type: ctype,
                 Value: value,
@@ -55,7 +55,7 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
                 IsBasic: false,
                 Type: InstanceType.Class,
                 Children: classChildren,
-            } as Export)
+            } as Export<T>)
         }
     });
 
@@ -75,7 +75,7 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
                     IsBasic: false,
                     Type: InstanceType.Class,
                     Children: objChildren,
-                } as Export)
+                } as Export<T>)
             } else {
                 children.push({
                     Key: objName,
@@ -83,7 +83,7 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
                     IsBasic: false,
                     Type: otype,
                     Children: [],
-                } as Export)
+                } as Export<T>)
             }
         }
     });
