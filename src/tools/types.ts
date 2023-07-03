@@ -54,5 +54,11 @@ export default function GetType<T>(value: T): InstanceType {
                 }
             }
         },
+        {
+            val: "object",
+            do: function () {
+                return InstanceType.Object
+            }
+        },
     )
 }

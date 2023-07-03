@@ -9,26 +9,24 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
         return children;
     }
 
-    const properties: string[] = removeDefaults([
-        ...Object.getOwnPropertyNames(proto),
-        ...Object.getOwnPropertyNames(target_class)
-    ]);
+    const descriptors = Object.getOwnPropertyDescriptors(proto)
 
     // Process Children
-    properties.forEach((prop: string) => {
-        const value: any = proto[prop]
+    Object.keys(descriptors).forEach((name: any) => {
+        const method = descriptors[name]
+        const value = method.value
         const ctype: InstanceType = GetType(value);
         const is_basic: boolean = IsBasic(ctype);
 
         let child: Export = {
-            Key: prop,
+            Key: name,
             Type: ctype,
             Value: value,
             IsBasic: is_basic,
-            Children: [],
+            Children: children,
         };
 
-        console.log(`${child.Key}, ${target_class}`)
+        children.push(child)
     });
 
     return children;
@@ -36,6 +34,6 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
 
 export function removeDefaults(target_class: string[]) {
     return target_class.filter(i => {
-        return !["length", "name", "constructor", "prototype"].includes(i)
+        return !["length", "name", "prototype"].includes(i)
     })
 }
