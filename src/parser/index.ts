@@ -1,5 +1,5 @@
 import getFunctionInfo from "../tools/functions";
-import { getAllClassChildren } from "../tools/classes";
+import { getAllClassChildren, getClassConstructor } from "../tools/classes";
 import GetType, { InstanceType, IsBasic } from "../tools/types";
 
 export interface AnyMap {
@@ -11,12 +11,18 @@ export interface FunctionData {
     Params: string[]
 }
 
+export interface ClassData {
+    RawCode: string
+    Params: string[]
+}
+
 export interface Export {
     Key: String
     Type: InstanceType
     IsBasic: boolean
     Value: undefined | any
     Children: Export[]
+    ClassData?: ClassData
     FunctionData?: FunctionData
 }
 
@@ -35,31 +41,25 @@ class Parser {
             const itype = GetType(value)
             const is_basic = IsBasic(itype)
 
-            let children: any[] = []
-            let function_data;
-
-            if (itype == InstanceType.Class) {
-                const class_children = getAllClassChildren(value)
-                children = [...children, ...class_children]
-            }
-            else if (itype == InstanceType.Function) {
-                function_data = getFunctionInfo(value)
-            }
-            else if (itype == InstanceType.Object) {
-                let innerObject = this.parse(value)
-                children = innerObject
-            }
-
             let final: Export = {
                 Key: key,
                 Type: itype,
                 Value: value,
                 IsBasic: is_basic,
-                Children: children,
+                Children: [],
             }
 
-            if (function_data != null) {
-                final.FunctionData = function_data
+            if (itype == InstanceType.Class) {
+                const class_children = getAllClassChildren(value)
+                final.Children = [...final.Children, ...class_children]
+                final.ClassData = getFunctionInfo(value)
+            }
+            else if (itype == InstanceType.Function) {
+                final.FunctionData = getFunctionInfo(value)
+            }
+            else if (itype == InstanceType.Object) {
+                let innerObject = this.parse(value)
+                final.Children = innerObject
             }
 
             this.#data.push(final as unknown as Export)
@@ -69,4 +69,7 @@ class Parser {
     }
 }
 
+const LocalParser = new Parser();
+
+export { LocalParser }
 export default Parser;

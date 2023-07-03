@@ -1,5 +1,9 @@
 import GetType, { InstanceType, IsBasic } from "./types";
-import { Export } from "../parser";
+import { Export, LocalParser } from "../parser";
+
+export function getClassConstructor(Class: any) {
+    return Class.prototype.constructor;
+}
 
 export function removeDefaults(target_class: string[]) {
     return target_class.filter(i => {
@@ -23,6 +27,7 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
 
     const methods = Object.getOwnPropertyDescriptors(proto)
     const classes = getInnerClasses(target_class)
+    const objects = Object.keys(target_class)
 
     // Process Children
     Object.keys(methods).forEach((name: any) => {
@@ -31,26 +36,50 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
         const ctype: InstanceType = GetType(value);
         const is_basic: boolean = IsBasic(ctype);
 
-        let child: Export = {
-            Key: name,
-            Type: ctype,
-            Value: value,
-            IsBasic: is_basic,
-            Children: children,
-        };
+        if (is_basic) {
+            let child: Export = {
+                Key: name,
+                Type: ctype,
+                Value: value,
+                IsBasic: is_basic,
+                Children: children,
+            };
 
-        children.push(child)
+            children.push(child)
+        }
     });
 
     classes.forEach(innerClass => {
-        let classChildren = getAllClassChildren(innerClass)
-        children.push({
-            Key: innerClass.name,
-            Value: innerClass,
-            IsBasic: false,
-            Type: InstanceType.Class,
-            Children: classChildren,
-        } as Export)
+        if (innerClass.Key != null) {
+            let classChildren = getAllClassChildren(innerClass)
+            children.push({
+                Key: innerClass.name,
+                Value: innerClass,
+                IsBasic: false,
+                Type: InstanceType.Class,
+                Children: classChildren,
+            } as Export)
+        }
+    });
+
+
+    objects.forEach(objName => {
+        const obj = (target_class as any)[objName]
+
+        if (obj != null) {
+            const otype = GetType(obj)
+
+            if (otype == InstanceType.Object) {
+                let objChildren = LocalParser.parse(obj)
+                children.push({
+                    Key: objName,
+                    Value: obj,
+                    IsBasic: false,
+                    Type: InstanceType.Class,
+                    Children: objChildren,
+                } as Export)
+            }
+        }
     });
 
     return children;
