@@ -16,7 +16,7 @@ class Debug {
             }
         }
         else {
-            console.log(`${" ".repeat(depth * 4)}- ${parent.Key}`);
+            console.log(`${" ".repeat(depth * 4)}- ${parent.Key}<${parent.Type}>(${parent.FunctionData != null ? parent.FunctionData.Params.join(", ") : ""})`);
         }
     }
 }
