@@ -26,10 +26,6 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
     }
 
     const methods = Object.getOwnPropertyDescriptors(proto)
-    const classes = getInnerClasses(target_class)
-    const objects = Object.keys(target_class)
-
-    // Process Children
     Object.keys(methods).forEach((name: any) => {
         const method = methods[name]
         const value = method.value
@@ -49,6 +45,7 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
         }
     });
 
+    const classes = getInnerClasses(target_class)
     classes.forEach(innerClass => {
         if (innerClass.Key != null) {
             let classChildren = getAllClassChildren(innerClass)
@@ -63,9 +60,10 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
     });
 
 
+    // Process Inner objects and basic types values
+    const objects = Object.keys(target_class)
     objects.forEach(objName => {
         const obj = (target_class as any)[objName]
-
         if (obj != null) {
             const otype = GetType(obj)
 
@@ -77,6 +75,14 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
                     IsBasic: false,
                     Type: InstanceType.Class,
                     Children: objChildren,
+                } as Export)
+            } else {
+                children.push({
+                    Key: objName,
+                    Value: obj,
+                    IsBasic: false,
+                    Type: otype,
+                    Children: [],
                 } as Export)
             }
         }
