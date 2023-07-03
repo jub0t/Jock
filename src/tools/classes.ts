@@ -1,6 +1,18 @@
 import GetType, { InstanceType, IsBasic, isClass } from "./types";
 import { Export } from "../parser";
 
+export function removeDefaults(target_class: string[]) {
+    return target_class.filter(i => {
+        return !["length", "name", "prototype"].includes(i)
+    })
+}
+
+export function getInnerClasses<T>(parent_class: T) {
+    return removeDefaults(Object.getOwnPropertyNames(parent_class)).map((name) => {
+        return (parent_class as any)[name]
+    })
+}
+
 export function getAllClassChildren<T extends { new(...args: any[]): any }>(target_class: T): Export[] {
     let children: Export[] = [];
     const proto = target_class.prototype;
@@ -42,16 +54,4 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
     });
 
     return children;
-}
-
-export function removeDefaults(target_class: string[]) {
-    return target_class.filter(i => {
-        return !["length", "name", "prototype"].includes(i)
-    })
-}
-
-export function getInnerClasses<T>(parent_class: T) {
-    return removeDefaults(Object.getOwnPropertyNames(parent_class)).map((name) => {
-        return (parent_class as any)[name]
-    })
 }

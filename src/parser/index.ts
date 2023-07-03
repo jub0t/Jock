@@ -8,6 +8,7 @@ export interface AnyMap {
 
 export interface FunctionData {
     RawCode: string
+    Params: string[]
 }
 
 export interface Export {
