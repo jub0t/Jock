@@ -1,2 +1,4 @@
 import Parser from "./parser"
-export default { Parser: new Parser(), }
+import Generator from "./generator"
+
+export default { Parser: new Parser(), Generator: new Generator() }
