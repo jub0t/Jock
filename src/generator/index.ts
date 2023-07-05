@@ -175,7 +175,17 @@ class Generator<T> {
         // Compile the AST to docs
 
     }
+
+    export() {
+        const pages = Object.keys(this.#pages);
+        for (let p = 0; p < pages.length; p++) {
+            const name = pages[p];
+            const page = this.#pages[name];
+
+            console.log(page)
+        }
+    }
 }
 const LocalGenerator = new Generator()
-export default Generator
 export { LocalGenerator }
+export default Generator
