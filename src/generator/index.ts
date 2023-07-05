@@ -1,6 +1,6 @@
-import { Export } from "../parser"
 import { InstanceType, IsBasic } from "../tools/types"
 import { randID } from "../tools/uuid"
+import { Export } from "../parser"
 import fs from "fs"
 
 enum DirectoryType {

@@ -1,6 +1,8 @@
+// Ignore this file, it isn't really related to project.
+
 import { LocalGenerator } from "../generator";
-import { Export } from "../parser";
 import { InstanceType } from "../tools/types";
+import { Export } from "../parser";
 
 class Debug {
     PrintStructure<T>(parent: Export<T>, processFunc?: Function, depth = 0) {

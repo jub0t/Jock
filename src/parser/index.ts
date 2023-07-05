@@ -1,6 +1,6 @@
-import getFunctionInfo from "../tools/functions";
-import { getAllClassChildren, getClassConstructor } from "../tools/classes";
 import GetType, { InstanceType, IsBasic } from "../tools/types";
+import { getAllClassChildren } from "../tools/classes";
+import getFunctionInfo from "../tools/functions";
 
 export interface AnyMap {
     [key: string]: any
