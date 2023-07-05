@@ -35,9 +35,8 @@ class Generator<T> {
 
     getCodeBlock(lang: string, label: string, code: PossibleString, grouped: boolean = true): PossibleString {
         if (code == null) return;
-
+        let codeblock = "```" + lang + ` [${label}]` + "\n" + code + "\n```";
         let results = "";
-        const codeblock = "```" + lang + ` [${label}]` + "\n" + code + "\n```";
 
         results += `# ${label}`
 
@@ -149,6 +148,5 @@ class Generator<T> {
     }
 }
 const LocalGenerator = new Generator()
-
-export { LocalGenerator }
 export default Generator
+export { LocalGenerator }
