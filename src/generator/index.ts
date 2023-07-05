@@ -33,14 +33,19 @@ class Generator<T> {
         objects: [],
     }
 
-    getCodeBlock(lang: string, label: string, code: PossibleString): PossibleString {
+    getCodeBlock(lang: string, label: string, code: PossibleString, grouped: boolean = true): PossibleString {
         if (code == null) return;
 
         let results = "";
         const codeblock = "```" + lang + ` [${label}]` + "\n" + code + "\n```";
 
         results += `# ${label}`
-        results += `::code-groupn\n${codeblock}\n::`
+
+        if (grouped) {
+            results += `::code-group\n${codeblock}\n::`
+        } else {
+            results += codeblock
+        }
 
         return results
     }
@@ -53,7 +58,14 @@ class Generator<T> {
             if (dir?.RawCode != null) {
                 main += this.getCodeBlock("js", "Class Code", dir.RawCode)
             }
-        } else {
+        }
+        else if (dir.Type == DirectoryType.Function) {
+            main += this.getCodeBlock("js", "Function Source", dir.RawCode)
+        }
+        else if (dir.Type == DirectoryType.Object) {
+            // ToDo
+        }
+        else {
             return ""
         }
 
