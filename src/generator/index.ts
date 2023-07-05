@@ -1,6 +1,7 @@
 import { Export } from "../parser"
 import { InstanceType, IsBasic } from "../tools/types"
 import { randID } from "../tools/uuid"
+import fs from "fs"
 
 enum DirectoryType {
     Global,
@@ -30,6 +31,33 @@ class Generator<T> {
         functions: [],
         classes: [],
         objects: [],
+    }
+
+    getCodeBlock(lang: string, label: string, code: PossibleString): PossibleString {
+        if (code == null) return;
+
+        let results = "";
+        const codeblock = "```" + lang + ` [${label}]` + "\n" + code + "\n```";
+
+        results += `# ${label}`
+        results += `::code-groupn\n${codeblock}\n::`
+
+        return results
+    }
+
+    generateCode<T>(dir: Directory<T>): PossibleString {
+        let main = "";
+        main += `# ${dir.Name}\n`
+
+        if (dir.Type == DirectoryType.Class) {
+            if (dir?.RawCode != null) {
+                main += this.getCodeBlock("js", "Class Code", dir.RawCode)
+            }
+        } else {
+            return ""
+        }
+
+        return main
     }
 
     getIconByType(typen: InstanceType): String {
@@ -65,12 +93,11 @@ class Generator<T> {
     exportToDirectory<T>(exp: Export<T>): Directory<T> {
         const dir: Directory<T> = {
             Id: randID(16),
+            Name: exp.Key,
             Icon: this.getIconByType(exp.Type),
             IsFolder: exp.Children.length > 0,
-            Name: exp.Key,
             Type: this.changeType(exp.Type),
             Children: [],
-            DocCode: ""
         };
 
         dir.RawCode = exp.ClassData?.RawCode || exp.FunctionData?.RawCode
@@ -88,24 +115,25 @@ class Generator<T> {
         return dir;
     }
 
-    getCodeBlock(lang: string, label: string, code: PossibleString): PossibleString {
-        if (code == null) return;
-
-        let results = "";
-        const codeblock = "```" + lang + ` [${label}]` + "\n" + code + "\n```";
-
-        results += `# ${label}`
-        results += `::code-groupn\n${codeblock}\n::`
-
-        return results
-    }
-
-    generateCode<T>(dir: Directory<T>): PossibleString {
-        if (dir.Type == DirectoryType.Class) {
-            return this.getCodeBlock("js", "Class Code", dir.RawCode)
-        } else {
-            return ""
+    generate<T>(asts: Export<T>[], outDir: string) {
+        // Initialize directory
+        if (!fs.existsSync(outDir)) {
+            fs.mkdirSync(outDir)
         }
+
+        const complex = asts.filter(ast => {
+            return !ast.IsBasic
+        })
+
+        const basics = asts.filter(ast => {
+            return ast.IsBasic
+        })
+
+        console.log(complex)
+        console.log(basics)
+
+        // Compile the AST to docs
+
     }
 }
 const LocalGenerator = new Generator()
