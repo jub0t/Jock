@@ -23,8 +23,8 @@ export interface Directory<T> {
     Children?: Directory<T>[]
 }
 
-type PossibleString = String | undefined
 type Pages<T> = { [key: string]: Directory<T>[] }
+type PossibleString = String | undefined
 
 class Generator<T> {
     #pages: Pages<T> = {
@@ -42,10 +42,14 @@ class Generator<T> {
     }
 
     getCodeBlock(lang: string, label: string, dir: Directory<T>): PossibleString {
-        let codeblock = "```" + lang + ` [${label}]` + "\n" + dir.RawCode + "\n```";
         let results = "";
 
-        results += `# ${label}<${dir.Type}>`
+        let codeblock = "";
+        if (this.IsBasic(dir.Type)) {
+            codeblock += "```" + lang + ` [${label}]` + "\n" + dir.RawCode + "\n```"
+        } else {
+            codeblock += "```" + lang + ` [${label}]` + "\n" + dir.Name + " = " + dir.Value + "\n```"
+        }
 
         if (this.IsBasic(dir.Type)) {
             results += `::code-group\n${codeblock}\n::`
@@ -63,11 +67,10 @@ class Generator<T> {
         if (dir.Type == DirectoryType.Class) {
             main += this.getCodeBlock("js", "Class Code", dir)
         }
+        else if (dir.Type == DirectoryType.Object) {
+        }
         else if (dir.Type == DirectoryType.Function) {
             main += this.getCodeBlock("js", "Function Source", dir)
-        }
-        else if (dir.Type == DirectoryType.Object) {
-            // ToDo
         }
         else {
             main += this.getCodeBlock("js", "Value", dir)
@@ -155,11 +158,18 @@ class Generator<T> {
             return ast.IsBasic
         })
 
+        complex.map(ast => {
+            const dir = this.exportToDirectory(ast)
+            const file = this.generateCode(dir)
+
+            console.log(file, "\n\n\n")
+        })
+
         basics.map((ast) => {
             const dir = this.exportToDirectory(ast)
             const file = this.generateCode(dir)
 
-            console.log(file)
+            console.log(file, "\n\n\n")
         })
 
         // Compile the AST to docs
