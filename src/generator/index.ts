@@ -12,13 +12,14 @@ enum DirectoryType {
 }
 
 export interface Directory<T> {
-    Id: String,
+    Id: String
+    Value: any
     Name: String
     Icon: String
     RawCode?: String
     DocCode?: String
     IsFolder: Boolean
-    Type: DirectoryType,
+    Type: DirectoryType
     Children?: Directory<T>[]
 }
 
@@ -65,7 +66,7 @@ class Generator<T> {
             // ToDo
         }
         else {
-            return ""
+            main += this.getCodeBlock("js", "Value", `${dir.Name = dir.Value}`, false)
         }
 
         return main
@@ -105,6 +106,7 @@ class Generator<T> {
         const dir: Directory<T> = {
             Id: randID(16),
             Name: exp.Key,
+            Value: exp.Value,
             Icon: this.getIconByType(exp.Type),
             IsFolder: exp.Children.length > 0,
             Type: this.changeType(exp.Type),
@@ -132,6 +134,15 @@ class Generator<T> {
             fs.mkdirSync(outDir)
         }
 
+        Object.keys(this.#pages).map((page: string) => {
+            const dir = `${outDir}/${page}`
+            console.log(dir)
+
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir)
+            }
+        })
+
         const complex = asts.filter(ast => {
             return !ast.IsBasic
         })
@@ -140,8 +151,8 @@ class Generator<T> {
             return ast.IsBasic
         })
 
-        console.log(complex)
-        console.log(basics)
+        // console.log(complex)
+        // console.log(basics)
 
         // Compile the AST to docs
 
