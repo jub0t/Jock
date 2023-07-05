@@ -33,10 +33,6 @@ class Generator<T> {
         }
     }
 
-    generateCode<T>(dir: Directory<T>): String {
-        return ""
-    }
-
     exportToDirectory<T>(exp: Export<T>): Directory<T> {
         const dir: Directory<T> = {
             Id: randID(16),
@@ -59,6 +55,10 @@ class Generator<T> {
         }
 
         return dir;
+    }
+
+    generateCode<T>(dir: Directory<T>): String {
+        return ""
     }
 }
 const LocalGenerator = new Generator()
