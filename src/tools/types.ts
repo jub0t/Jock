@@ -23,6 +23,7 @@ export function IsBasic(type_name: InstanceType) {
     return type_name == InstanceType.Float || type_name == InstanceType.Boolean || type_name == InstanceType.String || type_name == InstanceType.Number
 }
 
+
 export default function GetType<T>(value: T): InstanceType {
     const ty = typeof value;
     return Match(ty, undefined,

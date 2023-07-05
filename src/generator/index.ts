@@ -4,11 +4,11 @@ import { Export } from "../parser"
 import fs from "fs"
 
 enum DirectoryType {
-    Global,
-    Class,
-    Function,
-    Object,
-    Other
+    Function = "Function",
+    Global = "Global",
+    Object = "Object",
+    Class = "Class",
+    Other = "Other"
 }
 
 export interface Directory<T> {
@@ -23,25 +23,31 @@ export interface Directory<T> {
     Children?: Directory<T>[]
 }
 
-
 type PossibleString = String | undefined
+type Pages<T> = { [key: string]: Directory<T>[] }
 
 class Generator<T> {
-    #pages: { [key: string]: Directory<T>[] } = {
-        globals: [],
+    #pages: Pages<T> = {
         functions: [],
+        globals: [],
         classes: [],
         objects: [],
     }
 
-    getCodeBlock(lang: string, label: string, code: PossibleString, grouped: boolean = true): PossibleString {
-        if (code == null) return;
-        let codeblock = "```" + lang + ` [${label}]` + "\n" + code + "\n```";
+    IsBasic(type_name: DirectoryType) {
+        return type_name == DirectoryType.Function ||
+            type_name == DirectoryType.Object ||
+            type_name == DirectoryType.Other ||
+            type_name == DirectoryType.Class;
+    }
+
+    getCodeBlock(lang: string, label: string, dir: Directory<T>): PossibleString {
+        let codeblock = "```" + lang + ` [${label}]` + "\n" + dir.RawCode + "\n```";
         let results = "";
 
-        results += `# ${label}`
+        results += `# ${label}<${dir.Type}>`
 
-        if (grouped) {
+        if (this.IsBasic(dir.Type)) {
             results += `::code-group\n${codeblock}\n::`
         } else {
             results += codeblock
@@ -55,18 +61,16 @@ class Generator<T> {
         main += `# ${dir.Name}\n`
 
         if (dir.Type == DirectoryType.Class) {
-            if (dir?.RawCode != null) {
-                main += this.getCodeBlock("js", "Class Code", dir.RawCode)
-            }
+            main += this.getCodeBlock("js", "Class Code", dir)
         }
         else if (dir.Type == DirectoryType.Function) {
-            main += this.getCodeBlock("js", "Function Source", dir.RawCode)
+            main += this.getCodeBlock("js", "Function Source", dir)
         }
         else if (dir.Type == DirectoryType.Object) {
             // ToDo
         }
         else {
-            main += this.getCodeBlock("js", "Value", `${dir.Name = dir.Value}`, false)
+            main += this.getCodeBlock("js", "Value", dir)
         }
 
         return main
@@ -151,8 +155,12 @@ class Generator<T> {
             return ast.IsBasic
         })
 
-        // console.log(complex)
-        // console.log(basics)
+        basics.map((ast) => {
+            const dir = this.exportToDirectory(ast)
+            const file = this.generateCode(dir)
+
+            console.log(file)
+        })
 
         // Compile the AST to docs
 
