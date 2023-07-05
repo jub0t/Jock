@@ -41,7 +41,7 @@ class Parser {
             const itype = GetType(value)
             const is_basic = IsBasic(itype)
 
-            let final: Export<typeof itype> = {
+            let final: Export<typeof InstanceType> = {
                 Key: key,
                 Type: itype,
                 Value: value,
@@ -62,6 +62,10 @@ class Parser {
                 final.Children = innerObject
             }
 
+            if (verbose) {
+                console.log(final)
+            }
+
             this.#data.push(final as unknown as Export<typeof itype>)
         }
 
@@ -70,6 +74,5 @@ class Parser {
 }
 
 const LocalParser = new Parser();
-
 export { LocalParser }
 export default Parser;

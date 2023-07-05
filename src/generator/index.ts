@@ -1,6 +1,6 @@
 import { InstanceType, IsBasic } from "../tools/types"
 import { randID } from "../tools/uuid"
-import { Export } from "../parser"
+import { AnyMap, Export } from "../parser"
 import fs from "fs"
 
 enum DirectoryType {
@@ -22,16 +22,19 @@ export interface Directory<T> {
     Type: DirectoryType
     Children?: Directory<T>[]
 }
-
-type Pages<T> = { [key: string]: Directory<T>[] }
 type PossibleString = String | undefined
 
 class Generator<T> {
-    #pages: Pages<T> = {
+    #outdir: string = "./out";
+    #pages: AnyMap = {
         functions: [],
         globals: [],
         classes: [],
         objects: [],
+    }
+
+    constructor(outDir: string) {
+        this.#outdir = outDir
     }
 
     IsBasic(type_name: DirectoryType) {
@@ -135,15 +138,14 @@ class Generator<T> {
         return dir;
     }
 
-    generate<T>(asts: Export<T>[], outDir: string) {
+    build<T>(asts: Export<T>[]) {
         // Initialize directory
-        if (!fs.existsSync(outDir)) {
-            fs.mkdirSync(outDir)
+        if (!fs.existsSync(this.#outdir)) {
+            fs.mkdirSync(this.#outdir)
         }
 
         Object.keys(this.#pages).map((page: string) => {
-            const dir = `${outDir}/${page}`
-            console.log(dir)
+            const dir = `${this.#outdir}/${page}`
 
             if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir)
@@ -160,20 +162,29 @@ class Generator<T> {
 
         complex.map(ast => {
             const dir = this.exportToDirectory(ast)
-            const file = this.generateCode(dir)
-
-            console.log(file, "\n\n\n")
+            if (ast.Type === InstanceType.Class) {
+                this.#pages.classes.push(dir)
+            }
         })
 
         basics.map((ast) => {
-            const dir = this.exportToDirectory(ast)
-            const file = this.generateCode(dir)
-
-            console.log(file, "\n\n\n")
         })
 
         // Compile the AST to docs
 
+    }
+
+    // Can be used for objects
+    sortByType<T>(dirs: Directory<T>[]) {
+        let type_map: { [key: string]: Directory<T>[] } = {}
+
+        for (let x = 0; x < dirs.length; x++) {
+            const dir = dirs[x];
+
+            type_map[dir.Type].push(dir)
+        }
+
+        return type_map
     }
 
     export() {
@@ -182,10 +193,14 @@ class Generator<T> {
             const name = pages[p];
             const page = this.#pages[name];
 
-            console.log(page)
+            console.log(`Processing ${name}>`)
+            for (let x = 0; x < page.length; x++) {
+                const dir = page[x];
+                console.log(dir.DocCode)
+            }
         }
     }
 }
-const LocalGenerator = new Generator()
+const LocalGenerator = new Generator("./out")
 export { LocalGenerator }
 export default Generator
