@@ -2,6 +2,7 @@ import { InstanceType, IsBasic } from "../tools/types"
 import { randID } from "../tools/uuid"
 import { AnyMap, Export } from "../parser"
 import fs from "fs"
+import { getAllClassChildren } from "../tools/classes"
 
 enum DirectoryType {
     Function = "Function",
@@ -120,7 +121,9 @@ class Generator<T> {
             Icon: this.getIconByType(exp.Type),
             IsFolder: exp.Children.length > 0,
             Type: this.changeType(exp.Type),
-            Children: [],
+            Children: getAllClassChildren<any>(exp.Value).map(exp => {
+                return this.exportToDirectory(exp)
+            }),
         };
 
         dir.RawCode = exp.ClassData?.RawCode || exp.FunctionData?.RawCode
@@ -195,8 +198,9 @@ class Generator<T> {
 
             console.log(`Processing ${name}>`)
             for (let x = 0; x < page.length; x++) {
-                const dir = page[x];
-                console.log(dir.DocCode)
+                const dir: Directory<T> = page[x];
+
+                console.log(dir.Children)
             }
         }
     }

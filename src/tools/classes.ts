@@ -76,14 +76,6 @@ export function getAllClassChildren<T extends { new(...args: any[]): any }>(targ
                     Type: InstanceType.Class,
                     Children: objChildren,
                 } as Export<T>)
-            } else {
-                children.push({
-                    Key: objName,
-                    Value: obj,
-                    IsBasic: false,
-                    Type: otype,
-                    Children: [],
-                } as Export<T>)
             }
         }
     });
